@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>AIR SMASH 🏒</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&family=Pacifico&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;}
+:root{
+  --r:#FF4757;--rd:#c0392b;
+  --b:#2979FF;--bd:#1565c0;
+  --g:#00C853;--gd:#00962a;
+  --y:#FFD600;
+  --bg:#EEF2FF;
+  --card:#fff;
+  --txt:#1a1a2e;
+  --sub:#94a3b8;
+}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background:var(--bg);}
+
+/* ══ LOADER ══ */
+#loader{
+  position:fixed;inset:0;z-index:9999;
+  background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  transition:opacity .5s ease;
+}
+#loader.out{opacity:0;pointer-events:none;}
+.lb{width:72px;height:72px;border-radius:50%;
+  background:radial-gradient(circle at 33% 33%,#666 0%,#111 100%);
+  box-shadow:0 10px 0 rgba(0,0,0,.35),0 14px 30px rgba(0,0,0,.3);
+  animation:lbounce .55s cubic-bezier(.36,.07,.19,.97) infinite alternate;}
+@keyframes lbounce{from{transform:translateY(0);}to{transform:translateY(-30px);}}
+.lsh{width:52px;height:9px;border-radius:50%;background:rgba(0,0,0,.25);margin-top:-8px;
+  animation:lsh .55s ease-in-out infinite alternate;}
+@keyframes lsh{to{transform:scaleX(.45);opacity:.2;}}
+.ltitle{font-family:'Fredoka One',cursive;font-size:36px;color:#fff;letter-spacing:1px;}
+.lbar{width:170px;height:4px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;}
+.lbar-fill{height:100%;background:#fff;border-radius:99px;animation:lbarfill 1.25s ease-out forwards;}
+@keyframes lbarfill{from{width:0}to{width:100%}}
+
+/* ══ SCREENS ══ */
+.sc{
+  position:fixed;inset:0;z-index:10;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:20px;gap:16px;
+  transition:opacity .25s,transform .25s;
+}
+.sc.off{opacity:0;pointer-events:none;transform:scale(.97);}
+
+/* 9:16 game wrapper — centred on all screens */
+#sGame{
+  display:flex;align-items:center;justify-content:center;
+  background:#1a1a2e;
+}
+.game-inner{
+  position:relative;
+  width:100%;
+  max-width:calc(100dvh * 9 / 16);
+  height:100%;
+  max-height:calc(100dvw * 16 / 9);
+  display:flex;flex-direction:column;
+  background:#F8FAFF;
+  overflow:hidden;
+}
+
+/* bg circles */
+.bc{position:fixed;border-radius:50%;pointer-events:none;z-index:0;}
+.bc1{width:440px;height:440px;background:rgba(255,71,87,.1);top:-140px;left:-110px;}
+.bc2{width:340px;height:340px;background:rgba(41,121,255,.09);bottom:-100px;right:-80px;}
+.bc3{width:190px;height:190px;background:rgba(255,214,0,.1);top:30%;right:-45px;}
+
+/* ══ SHARED ══ */
+.logo{text-align:center;z-index:1;}
+.logo-ico{font-size:56px;display:block;animation:spin 4s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.logo-txt{
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(46px,11vw,82px);
+  line-height:1;display:block;
+  background:linear-gradient(120deg,var(--r) 0%,#FF8C00 45%,var(--b) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.logo-sub{font-size:11px;font-weight:800;letter-spacing:4px;color:var(--sub);text-transform:uppercase;margin-top:3px;}
+
+.card{
+  background:var(--card);border-radius:22px;padding:22px;
+  box-shadow:0 4px 6px rgba(0,0,0,.04),0 10px 36px rgba(0,0,0,.1);
+  width:100%;max-width:400px;z-index:1;
+}
+.lbl{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--sub);margin-bottom:7px;display:block;}
+.inp{
+  width:100%;border:2.5px solid #E4EAF5;border-radius:13px;
+  padding:12px 15px;font-size:16px;font-family:'Nunito',sans-serif;font-weight:800;
+  color:var(--txt);outline:none;background:#FAFBFF;
+  transition:border-color .2s,box-shadow .2s;
+}
+.inp:focus{border-color:var(--b);box-shadow:0 0 0 3px rgba(41,121,255,.12);}
+
+.btn{
+  border:none;cursor:pointer;border-radius:15px;
+  font-family:'Fredoka One',cursive;font-size:20px;
+  padding:15px 18px;width:100%;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  transition:transform .13s,box-shadow .13s;
+}
+.btn:hover{transform:translateY(-3px);}
+.btn:active{transform:scale(.97);}
+.btn-r{background:var(--r);color:#fff;box-shadow:0 5px 0 var(--rd),0 7px 22px rgba(255,71,87,.28);}
+.btn-r:hover{box-shadow:0 7px 0 var(--rd),0 10px 26px rgba(255,71,87,.33);}
+.btn-b{background:var(--b);color:#fff;box-shadow:0 5px 0 var(--bd),0 7px 22px rgba(41,121,255,.28);}
+.btn-b:hover{box-shadow:0 7px 0 var(--bd),0 10px 26px rgba(41,121,255,.33);}
+.btn-g{background:var(--g);color:#fff;box-shadow:0 5px 0 var(--gd),0 7px 22px rgba(0,200,83,.28);}
+.btn-g:hover{box-shadow:0 7px 0 var(--gd),0 10px 26px rgba(0,200,83,.33);}
+.btn-ghost{background:#EEF2FF;color:var(--txt);box-shadow:0 4px 0 #d8dfee;}
+
+.back{
+  position:absolute;top:15px;left:15px;z-index:20;
+  background:#fff;border:none;border-radius:50%;width:42px;height:42px;
+  font-size:17px;cursor:pointer;
+  box-shadow:0 2px 10px rgba(0,0,0,.1);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .13s;
+}
+.back:hover{transform:scale(1.1);}
+
+/* ══ MODE CARDS ══ */
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:420px;z-index:1;}
+.mc{
+  background:#fff;border-radius:20px;padding:22px 12px;text-align:center;
+  cursor:pointer;box-shadow:0 5px 0 #d8dfee,0 9px 26px rgba(0,0,0,.08);
+  border:3px solid transparent;
+  transition:transform .15s,border-color .15s,box-shadow .15s;
+}
+.mc:hover{transform:translateY(-5px);}
+.mc.ai:hover{border-color:#FF8C00;box-shadow:0 5px 0 #e07800,0 11px 32px rgba(255,140,0,.2);}
+.mc.pvp:hover{border-color:var(--b);box-shadow:0 5px 0 var(--bd),0 11px 32px rgba(41,121,255,.2);}
+.mc-ico{font-size:42px;display:block;margin-bottom:7px;}
+.mc-name{font-family:'Fredoka One',cursive;font-size:23px;color:var(--txt);}
+.mc-info{font-size:10px;color:var(--sub);margin-top:2px;line-height:1.4;}
+
+/* difficulty screen */
+#sDiff{gap:18px;}
+.diff-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:380px;z-index:1;}
+.dc{
+  background:#fff;border-radius:20px;padding:26px 14px;text-align:center;
+  cursor:pointer;box-shadow:0 5px 0 #d8dfee,0 9px 26px rgba(0,0,0,.08);
+  border:3px solid transparent;transition:transform .15s,border-color .15s,box-shadow .15s;
+}
+.dc:hover{transform:translateY(-5px);}
+.dc.easy:hover{border-color:#00C853;box-shadow:0 5px 0 #00962a,0 11px 32px rgba(0,200,83,.2);}
+.dc.hard:hover{border-color:var(--r);box-shadow:0 5px 0 var(--rd),0 11px 32px rgba(255,71,87,.2);}
+.dc-ico{font-size:42px;display:block;margin-bottom:8px;}
+.dc-name{font-family:'Fredoka One',cursive;font-size:24px;color:var(--txt);}
+.dc-info{font-size:10px;color:var(--sub);margin-top:3px;line-height:1.4;}
+
+/* ══ WAIT ══ */
+.codebox{
+  background:#fff;border-radius:20px;padding:26px 22px 18px;
+  box-shadow:0 4px 6px rgba(0,0,0,.04),0 10px 36px rgba(0,0,0,.1);
+  text-align:center;width:100%;max-width:360px;z-index:1;
+}
+.code{
+  font-family:'Fredoka One',cursive;font-size:70px;letter-spacing:13px;
+  color:var(--txt);cursor:pointer;display:inline-block;
+  transition:transform .1s;
+}
+.code:active{transform:scale(.93);}
+.copyh{font-size:11px;color:var(--b);font-weight:800;cursor:pointer;margin-top:1px;}
+.wdots{display:flex;gap:9px;justify-content:center;z-index:1;}
+.wd{width:11px;height:11px;border-radius:50%;animation:wdb 1s ease-in-out infinite;}
+.wd:nth-child(1){background:var(--r);animation-delay:0s;}
+.wd:nth-child(2){background:var(--y);animation-delay:.14s;}
+.wd:nth-child(3){background:var(--g);animation-delay:.28s;}
+.wd:nth-child(4){background:var(--b);animation-delay:.42s;}
+@keyframes wdb{0%,80%,100%{transform:scale(.45)}40%{transform:scale(1.3)}}
+.wst{font-size:13px;font-weight:700;color:var(--sub);z-index:1;text-align:center;}
+
+/* code input */
+.cinp{
+  font-family:'Fredoka One',cursive;font-size:52px;text-align:center;
+  letter-spacing:11px;width:100%;max-width:290px;
+  border:2.5px solid #E4EAF5;border-radius:18px;
+  padding:14px 8px;outline:none;color:var(--txt);
+  background:#fff;z-index:1;
+  transition:border-color .2s,box-shadow .2s;
+}
+.cinp:focus{border-color:var(--b);box-shadow:0 0 0 3px rgba(41,121,255,.12);}
+
+/* ══ BY MUSOKHAN ══ */
+#badge{
+  position:fixed;top:13px;left:50%;transform:translateX(-50%);
+  z-index:500;animation:badgein .8s cubic-bezier(.34,1.56,.64,1) .5s both;
+}
+@keyframes badgein{from{opacity:0;transform:translateX(-50%) translateY(-18px) scale(.85);}to{opacity:1;transform:translateX(-50%) scale(1);}}
+#badge a{
+  display:flex;align-items:center;gap:8px;padding:6px 16px 6px 12px;
+  background:rgba(255,255,255,.88);backdrop-filter:blur(10px);
+  border-radius:50px;text-decoration:none;white-space:nowrap;
+  border:1.5px solid rgba(14,165,233,.18);
+  box-shadow:0 3px 16px rgba(14,165,233,.13);
+  transition:transform .16s,box-shadow .16s;
+}
+#badge a:hover{transform:translateY(-3px);box-shadow:0 7px 24px rgba(14,165,233,.22);}
+.bdot{width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex-shrink:0;
+  animation:bdot 2s ease-in-out infinite;}
+@keyframes bdot{0%,100%{background:#0ea5e9;}50%{background:#10b981;box-shadow:0 0 0 5px rgba(14,165,233,0);}}
+.binner{display:flex;flex-direction:column;align-items:flex-start;line-height:1;}
+.blbl{font-size:8px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;}
+.bname{
+  font-family:'Pacifico',cursive;font-size:clamp(14px,3vw,19px);
+  background:linear-gradient(90deg,#0ea5e9,#06b6d4,#10b981,#3b82f6,#0ea5e9);
+  background-size:250% 100%;animation:bshift 4s linear infinite;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+@keyframes bshift{0%{background-position:0%}100%{background-position:250%}}
+
+/* ══ GAME SCREEN ══ */
+#sGame{padding:0;justify-content:flex-start;align-items:stretch;background:#F8FAFF;}
+
+/* HUD */
+.hud{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 11px;background:#fff;
+  border-bottom:2.5px solid #EEF2FF;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+  gap:4px;
+}
+.hp{display:flex;flex-direction:column;align-items:center;flex:1;}
+.htag{font-size:9px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;
+  padding:2px 9px;border-radius:50px;color:#fff;margin-bottom:1px;}
+.htag.t1{background:var(--r);}
+.htag.t2{background:var(--b);}
+.hname{font-size:10px;font-weight:800;color:var(--sub);max-width:78px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hscore{font-family:'Fredoka One',cursive;font-size:44px;line-height:1;}
+.hs1{color:var(--r);}
+.hs2{color:var(--b);}
+.hscore.bump{animation:bump .28s cubic-bezier(.34,1.56,.64,1);}
+@keyframes bump{0%{transform:scale(1)}50%{transform:scale(1.5)}100%{transform:scale(1)}}
+
+.hcenter{display:flex;flex-direction:column;align-items:center;padding:0 6px;}
+.htime{font-family:'Fredoka One',cursive;font-size:26px;color:var(--txt);line-height:1;}
+.htime.red{color:var(--r);animation:tpulse .5s ease-in-out infinite;}
+@keyframes tpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.hvs{font-size:8px;font-weight:800;letter-spacing:2px;color:#cbd5e1;text-transform:uppercase;}
+
+.hbtns{display:flex;gap:5px;align-items:center;flex-shrink:0;}
+.hbtn{
+  width:33px;height:33px;border:none;border-radius:9px;
+  font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .13s;flex-shrink:0;
+}
+.hbtn:hover{transform:scale(1.1);}
+.hbtn:active{transform:scale(.93);}
+.hbtn.fs{background:#EDE9FE;color:#7C3AED;}
+.hbtn.lv{background:#FEE2E2;color:var(--r);}
+
+/* CANVAS AREA */
+.cwrap{flex:1;position:relative;overflow:hidden;}
+#gc{display:block;width:100%;height:100%;touch-action:none;cursor:none;}
+
+/* CLICK HINT */
+.hint{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:13px;font-weight:800;color:rgba(0,0,0,.22);
+  pointer-events:none;z-index:3;text-align:center;line-height:2;
+  transition:opacity .35s;
+}
+.hint.gone{opacity:0;}
+
+/* GOAL FLASH */
+.gflash{position:absolute;inset:0;pointer-events:none;z-index:4;opacity:0;}
+
+/* GOAL POP */
+.gpop{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(0);
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(42px,9vw,74px);
+  pointer-events:none;z-index:9;text-align:center;line-height:1.1;
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1),opacity .2s;
+}
+.gpop.show{transform:translate(-50%,-50%) scale(1);}
+.gpop.gone{opacity:0;transform:translate(-50%,-60%) scale(.8);}
+
+/* END OVERLAY */
+.endlay{
+  position:absolute;inset:0;z-index:20;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  background:rgba(238,242,255,.93);backdrop-filter:blur(10px);
+}
+.endlay.off{display:none;}
+.eico{font-size:68px;animation:spin .7s cubic-bezier(.34,1.56,.64,1);}
+.etitle{font-family:'Fredoka One',cursive;font-size:clamp(30px,7vw,54px);color:var(--txt);}
+.esub{font-size:13px;font-weight:800;color:var(--sub);margin-bottom:14px;}
+.erow{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;}
+.ebtn{
+  border:none;border-radius:13px;font-family:'Fredoka One',cursive;font-size:19px;
+  padding:12px 24px;cursor:pointer;transition:transform .13s;
+}
+.ebtn:hover{transform:translateY(-3px);}
+.ebtn.again{background:var(--g);color:#fff;box-shadow:0 4px 0 var(--gd);}
+.ebtn.home{background:#EEF2FF;color:var(--txt);box-shadow:0 4px 0 #d8dfee;}
+
+/* confetti */
+.cf{position:fixed;top:-10px;pointer-events:none;z-index:999;animation:cf linear forwards;}
+@keyframes cf{0%{transform:translateY(0) rotate(0);opacity:1;}100%{transform:translateY(108vh) rotate(720deg);opacity:0;}}
+
+/* toast */
+#toast{
+  position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(65px);
+  background:#1a1a2e;color:#fff;padding:9px 20px;border-radius:50px;
+  font-size:13px;font-weight:800;z-index:999;transition:transform .28s;white-space:nowrap;
+}
+#toast.show{transform:translateX(-50%) translateY(0);}
+
+/* particles */
+.fp{position:fixed;border-radius:50%;pointer-events:none;z-index:0;opacity:0;animation:fp linear infinite;}
+@keyframes fp{0%{transform:translateY(100vh);opacity:0;}10%{opacity:.45;}90%{opacity:.25;}100%{transform:translateY(-100px);opacity:0;}}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="lb"></div>
+  <div class="lsh"></div>
+  <div class="ltitle">AIR SMASH 🏒</div>
+  <div class="lbar"><div class="lbar-fill"></div></div>
+</div>
+
+<!-- BG -->
+<div class="bc bc1"></div>
+<div class="bc bc2"></div>
+<div class="bc bc3"></div>
+
+<!-- BADGE -->
+<div id="badge">
+  <a href="https://t.me/musoxonman" target="_blank" rel="noopener">
+    <div class="bdot"></div>
+    <div class="binner">
+      <span class="blbl">crafted by</span>
+      <span class="bname">MUSOKHAN</span>
+    </div>
+  </a>
+</div>
+
+<!-- LOBBY -->
+<div class="sc" id="sLobby">
+  <div class="logo">
+    <span class="logo-ico">🏒</span>
+    <span class="logo-txt">AIR SMASH</span>
+    <div class="logo-sub">2-Minute Air Hockey</div>
+  </div>
+  <div class="card">
+    <label class="lbl">Your Nickname</label>
+    <input class="inp" id="nameInp" maxlength="14" placeholder="Enter name…" value="Player" style="margin-bottom:18px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;">
+      <button class="btn btn-r" onclick="goModes()">🚀 Create</button>
+      <button class="btn btn-b" onclick="goJoin()">🎮 Join</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODES -->
+<div class="sc off" id="sModes">
+  <button class="back" onclick="go('sLobby')">←</button>
+  <div style="font-family:'Fredoka One',cursive;font-size:clamp(22px,5vw,34px);z-index:1;">Choose Mode 🎯</div>
+  <div class="modes">
+    <div class="mc ai"  onclick="go('sDiff')">
+      <span class="mc-ico">🤖</span>
+      <div class="mc-name">VS AI</div>
+      <div class="mc-info">Play vs computer</div>
+    </div>
+    <div class="mc pvp" onclick="hostRoom()">
+      <span class="mc-ico">🔒</span>
+      <div class="mc-name">Private</div>
+      <div class="mc-info">Invite with code</div>
+    </div>
+  </div>
+</div>
+
+<!-- DIFFICULTY -->
+<div class="sc off" id="sDiff">
+  <button class="back" onclick="go('sModes')">←</button>
+  <div style="font-family:'Fredoka One',cursive;font-size:clamp(22px,5vw,34px);z-index:1;">Choose Difficulty 🎯</div>
+  <div class="diff-row">
+    <div class="dc easy" onclick="startAI('easy')">
+      <span class="dc-ico">😊</span>
+      <div class="dc-name">Easy</div>
+      <div class="dc-info">Relaxed AI, good for practice</div>
+    </div>
+    <div class="dc hard" onclick="startAI('hard')">
+      <span class="dc-ico">🔥</span>
+      <div class="dc-name">Hard</div>
+      <div class="dc-info">Aggressive AI, scores hard</div>
+    </div>
+  </div>
+</div>
+
+<!-- WAIT -->
+<div class="sc off" id="sWait">
+  <button class="back" onclick="leaveWait()">←</button>
+  <div class="codebox">
+    <div class="lbl">🔑 Room Code — tap to copy</div>
+    <div class="code" id="codeDisp" onclick="copyCode()">----</div>
+    <div class="copyh" onclick="copyCode()">📋 Tap to copy & share</div>
+  </div>
+  <div class="wdots"><div class="wd"></div><div class="wd"></div><div class="wd"></div><div class="wd"></div></div>
+  <div class="wst" id="wst">Connecting…</div>
+</div>
+
+<!-- JOIN -->
+<div class="sc off" id="sJoin">
+  <button class="back" onclick="go('sLobby')">←</button>
+  <div style="font-family:'Fredoka One',cursive;font-size:clamp(22px,5vw,34px);z-index:1;">Join Room 🎮</div>
+  <input class="cinp" id="joinInp" maxlength="4" placeholder="0000" inputmode="numeric"
+    oninput="this.value=this.value.replace(/\D/g,'')">
+  <button class="btn btn-g" style="max-width:290px;z-index:1;" onclick="joinRoom()">Let's Go! →</button>
+</div>
+
+<!-- GAME -->
+<div class="sc off" id="sGame" style="padding:0;">
+  <div class="game-inner" id="gameInner">
+  <div class="hud">
+    <div class="hp">
+      <div class="htag t1">YOU</div>
+      <div class="hname" id="hname1">Player</div>
+      <div class="hscore hs1" id="hscore1">0</div>
+    </div>
+    <div class="hcenter">
+      <div class="hvs">TIME</div>
+      <div class="htime" id="htime">2:00</div>
+    </div>
+    <div class="hp">
+      <div class="htag t2">OPP</div>
+      <div class="hname" id="hname2">Opponent</div>
+      <div class="hscore hs2" id="hscore2">0</div>
+    </div>
+    <div class="hbtns">
+      <button class="hbtn fs" onclick="toggleFS()" title="Fullscreen">⛶</button>
+      <button class="hbtn lv" onclick="leaveGame()" title="Leave">🚪</button>
+    </div>
+  </div>
+  <div class="cwrap" id="cwrap">
+    <canvas id="gc"></canvas>
+    <div class="hint" id="hint">🖱️ Click to lock mouse</div>
+    <div class="gflash" id="gflash"></div>
+    <div class="gpop"   id="gpop"></div>
+    <div class="endlay off" id="endlay">
+      <div class="eico"  id="eico">🏆</div>
+      <div class="etitle" id="etitle">You Win!</div>
+      <div class="esub"  id="esub">3 – 1</div>
+      <div class="erow">
+        <button class="ebtn again" onclick="playAgain()">🔄 Play Again</button>
+        <button class="ebtn home"  onclick="leaveGame()">🏠 Lobby</button>
+      </div>
+    </div>
+  </div>
+  </div><!-- /game-inner -->
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════
+// WS URL — auto-detect protocol
+// ═══════════════════════════════════════════════════
+const WS_URL = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host;
+
+// ═══════════════════════════════════════════════════
+// LOADER
+// ═══════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const ld = document.getElementById('loader');
+    ld.classList.add('out');
+    setTimeout(() => ld.remove(), 520);
+    spawnParticles();
+  }, 1350);
+});
+
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
+function go(id) {
+  document.querySelectorAll('.sc').forEach(s => s.classList.add('off'));
+  document.getElementById(id).classList.remove('off');
+  document.getElementById('badge').style.display = id === 'sGame' ? 'none' : '';
+}
+function getName() { return document.getElementById('nameInp').value.trim() || 'Player'; }
+function goModes() { myName = getName(); go('sModes'); }
+function goJoin()  { myName = getName(); go('sJoin'); setTimeout(() => document.getElementById('joinInp').focus(), 200); }
+
+// ═══════════════════════════════════════════════════
+// GLOBAL STATE
+// ═══════════════════════════════════════════════════
+let myName  = 'Player';
+let myRole  = null;   // 'ai' | 'host' | 'guest'
+let roomCode = null;
+let ws = null;
+let pingId = null;
+
+// ═══════════════════════════════════════════════════
+// WEBSOCKET
+// ═══════════════════════════════════════════════════
+function openWS(cb) {
+  if (ws && ws.readyState === WebSocket.OPEN) { cb(); return; }
+  if (ws) ws.close();
+  ws = new WebSocket(WS_URL);
+  ws.onopen  = () => { pingId = setInterval(() => wsSend({ type:'ping' }), 20000); cb(); };
+  ws.onmessage = e => onWSMsg(JSON.parse(e.data));
+  ws.onclose = () => { clearInterval(pingId); if (gameActive) toast('⚠️ Connection lost!'); };
+  ws.onerror = () => toast('❌ Could not connect');
+}
+function wsSend(o) { if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(o)); }
+function closeWS() { clearInterval(pingId); if (ws) { ws.close(); ws = null; } }
+
+// ═══════════════════════════════════════════════════
+// WS MESSAGE HANDLER
+// ═══════════════════════════════════════════════════
+function onWSMsg(m) {
+  switch (m.type) {
+
+    case 'created':
+      document.getElementById('wst').textContent = 'Waiting for opponent…';
+      toast('✅ Room ready!');
+      break;
+
+    case 'opponent_joined':
+      // HOST: guest joined. Start game. I am pad1 (bottom/red). Guest is pad2 (top/blue).
+      toast('🎮 ' + m.guestName + ' joined!');
+      setTimeout(() => startGame(myName, m.guestName), 700);
+      break;
+
+    case 'joined':
+      // GUEST: joined. Start game. I am pad1 (bottom/red). Host is pad2 (top/blue).
+      toast('✅ Joined!');
+      setTimeout(() => startGame(myName, m.hostName), 700);
+      break;
+
+    case 'error':
+      toast('❌ ' + m.text);
+      break;
+
+    // ── in-game ──────────────────────────────────
+
+    case 'paddle':
+      // I receive my opponent's paddle position (normalised).
+      // Opponent is ALWAYS pad2 (top half).
+      // Convert from normalised back to pixels.
+      pad2.tx = m.x * CW;
+      pad2.ty = m.y * CH;
+      break;
+
+    case 'puck':
+      // Only GUEST receives this from HOST.
+      if (myRole === 'guest') {
+        puck.x  = m.x  * CW;
+        puck.y  = m.y  * CH;
+        puck.vx = m.vx * CW;
+        puck.vy = m.vy * CH;
+      }
+      break;
+
+    case 'goal':
+      // Only GUEST receives this.
+      if (myRole === 'guest') {
+        score1 = m.s1;
+        score2 = m.s2;
+        updateHUD(m.scorer);
+        goalFX(m.scorer);
+        gameActive = false;
+        setTimeout(() => { gameActive = true; }, 1700);
+      }
+      break;
+
+    case 'gameover':
+      if (myRole === 'guest') {
+        score1 = m.s1; score2 = m.s2;
+        doEndGame();
+      }
+      break;
+
+    case 'restart':
+      doRestart();
+      break;
+
+    case 'left':
+      toast('👋 Opponent left');
+      gameActive = false;
+      clearInterval(timerID);
+      setTimeout(() => leaveGame(), 2200);
+      break;
+
+    case 'pong': break;
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// ROOM ACTIONS
+// ═══════════════════════════════════════════════════
+function startAI(diff) {
+  myRole  = 'ai';
+  aiDiff  = diff || 'easy';
+  myName  = getName();
+  const oppName = diff === 'hard' ? '🔥 Hard Bot' : '😊 Easy Bot';
+  startGame(myName, oppName);
+}
+
+function hostRoom() {
+  myName   = getName();
+  myRole   = 'host';
+  roomCode = String(1000 + Math.floor(Math.random() * 9000));
+  document.getElementById('codeDisp').textContent = roomCode;
+  document.getElementById('wst').textContent = 'Connecting…';
+  go('sWait');
+  openWS(() => wsSend({ type:'create', code:roomCode, name:myName }));
+}
+
+function copyCode() {
+  if (!roomCode) return;
+  navigator.clipboard?.writeText(roomCode).then(() => toast('📋 Copied!'));
+  const el = document.getElementById('codeDisp');
+  el.style.transform = 'scale(.9)'; setTimeout(() => el.style.transform = '', 130);
+}
+
+function leaveWait() { closeWS(); go('sLobby'); }
+
+function joinRoom() {
+  const code = document.getElementById('joinInp').value.trim();
+  if (code.length !== 4) { toast('⚠️ Enter 4-digit code!'); return; }
+  myName   = getName();
+  myRole   = 'guest';
+  roomCode = code;
+  toast('🔌 Connecting…');
+  openWS(() => wsSend({ type:'join', code, name:myName }));
+}
+
+// ═══════════════════════════════════════════════════
+// GAME CONSTANTS
+// ═══════════════════════════════════════════════════
+const GAME_SECS = 120;
+const GOAL_W_FRAC = 0.36;  // goal width as % of canvas
+const GOAL_DEPTH  = 14;    // px
+
+// ═══════════════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════════════
+let C, ctx, CW, CH;
+let gameActive = false;
+let score1 = 0, score2 = 0;
+let timeLeft = GAME_SECS;
+let timerID = null;
+let rafID   = null;
+let tick    = 0;
+
+// puck — always in pixel space
+const puck = { x:0, y:0, vx:0, vy:0, r:0, trail:[] };
+
+// pad1 = MY paddle. Always in BOTTOM half. Red.
+// pad2 = OPPONENT paddle. Always in TOP half. Blue.
+// tx/ty = target (from input or network). x/y = actual rendered position.
+// px/py = previous position (for real velocity calculation)
+const pad1 = { x:0, y:0, r:0, tx:0, ty:0, px:0, py:0 };
+const pad2 = { x:0, y:0, r:0, tx:0, ty:0, px:0, py:0 };
+
+// AI state
+let aiMode = 'defend', aiTick = 0, aiWA = 0;
+let aiDiff = 'easy'; // 'easy' | 'hard'
+
+// Anti-stuck watchdog
+let stuckTick = 0, lastPuckX = 0, lastPuckY = 0;
+function checkStuck() {
+  const moved = Math.hypot(puck.x - lastPuckX, puck.y - lastPuckY);
+  if (moved < 2) {
+    stuckTick++;
+    if (stuckTick > 50) {
+      // Rescue: teleport puck to center, give it a fresh velocity
+      puck.x = CW / 2; puck.y = CH / 2;
+      const a = (Math.random() > 0.5 ? 1 : -1) * (Math.PI/2) + (Math.random()-0.5)*0.8;
+      const sp = CH * 0.010;
+      puck.vx = Math.cos(a) * sp; puck.vy = Math.sin(a) * sp;
+      puck.trail = [];
+      stuckTick = 0;
+    }
+  } else {
+    stuckTick = 0;
+  }
+  lastPuckX = puck.x; lastPuckY = puck.y;
+}
+
+// ═══════════════════════════════════════════════════
+// START GAME
+// ═══════════════════════════════════════════════════
+function startGame(n1, n2) {
+  document.getElementById('hname1').textContent = n1;
+  document.getElementById('hname2').textContent = n2;
+  score1 = 0; score2 = 0;
+  updateHUD(0);
+  document.getElementById('endlay').classList.add('off');
+  go('sGame');
+
+  C   = document.getElementById('gc');
+  ctx = C.getContext('2d');
+  resizeCv();
+  window.addEventListener('resize', resizeCv);
+  setupInput();
+
+  pad1.x = pad1.tx = CW / 2;  pad1.y = pad1.ty = CH * 0.82;
+  pad2.x = pad2.tx = CW / 2;  pad2.y = pad2.ty = CH * 0.18;
+
+  resetPuck();
+  startTimer();
+  gameActive = true;
+  if (rafID) cancelAnimationFrame(rafID);
+  loop();
+}
+
+function resizeCv() {
+  const w = document.getElementById('cwrap');
+  CW = w.clientWidth; CH = w.clientHeight;
+  C.width = CW; C.height = CH;
+  // Use CH (height) as the reference — table is taller than wide in 9:16
+  const ref = CH;
+  puck.r = ref * 0.022;       // smaller relative to height
+  pad1.r = pad2.r = ref * 0.048;
+}
+
+// ═══════════════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════════════
+function startTimer() {
+  timeLeft = GAME_SECS;
+  clearInterval(timerID);
+  renderTimer();
+  timerID = setInterval(() => {
+    if (!gameActive) return;
+    timeLeft--;
+    renderTimer();
+    if (timeLeft <= 0 && myRole !== 'guest') doEndGame();
+  }, 1000);
+}
+
+function renderTimer() {
+  const el = document.getElementById('htime');
+  const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+  el.textContent = m + ':' + String(s).padStart(2,'0');
+  el.classList.toggle('red', timeLeft <= 15);
+}
+
+// ═══════════════════════════════════════════════════
+// INPUT
+// ═══════════════════════════════════════════════════
+let locked = false;
+
+function setupInput() {
+  C.addEventListener('click', () => { if (!document.pointerLockElement) C.requestPointerLock(); });
+  document.addEventListener('pointerlockchange', () => {
+    locked = !!document.pointerLockElement;
+    document.getElementById('hint').classList.toggle('gone', locked);
+  });
+  // Pointer lock: delta movement
+  document.addEventListener('mousemove', e => {
+    if (!locked) return;
+    pad1.tx = clamp(pad1.tx + e.movementX, pad1.r, CW - pad1.r);
+    pad1.ty = clamp(pad1.ty + e.movementY, CH * 0.51, CH - pad1.r);
+  });
+  // Fallback mouse
+  C.addEventListener('mousemove', e => {
+    if (locked) return;
+    const r  = C.getBoundingClientRect();
+    pad1.tx = clamp((e.clientX - r.left) * (CW / r.width),  pad1.r, CW - pad1.r);
+    pad1.ty = clamp((e.clientY - r.top)  * (CH / r.height), CH * 0.51, CH - pad1.r);
+  });
+  C.addEventListener('touchmove',  onTouch, { passive:false });
+  C.addEventListener('touchstart', onTouch, { passive:false });
+}
+
+function onTouch(e) {
+  e.preventDefault();
+  const r = C.getBoundingClientRect();
+  const sx = CW / r.width, sy = CH / r.height;
+  for (const t of e.touches) {
+    const mx = (t.clientX - r.left) * sx;
+    const my = (t.clientY - r.top)  * sy;
+    // My paddle is always in bottom half
+    if (my > CH / 2) {
+      pad1.tx = clamp(mx, pad1.r, CW - pad1.r);
+      pad1.ty = clamp(my, CH * 0.51, CH - pad1.r);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// PUCK RESET
+// ═══════════════════════════════════════════════════
+function resetPuck() {
+  puck.x = CW / 2; puck.y = CH / 2;
+  puck.trail = [];
+  const spd = CH * 0.010;  // based on height for 9:16
+  // Serve toward random side, always has vertical component
+  const angle = (Math.random() > 0.5 ? 1 : -1) * (Math.PI / 2) + (Math.random() - 0.5) * 0.8;
+  puck.vx = Math.cos(angle) * spd;
+  puck.vy = Math.sin(angle) * spd;
+}
+
+// ═══════════════════════════════════════════════════
+// AI
+// ═══════════════════════════════════════════════════
+function stepAI() {
+  const isHard = aiDiff === 'hard';
+
+  // Speed: hard is 60% faster than easy
+  const spd = isHard ? CH * 0.017 : CH * 0.010;
+
+  // Mode decision frequency: hard reacts quicker
+  aiTick--;
+  const attackThresh = isHard ? CH * 0.52 : CH * 0.46; // hard attacks even from mid-court
+  if (aiTick <= 0) {
+    if (puck.y < attackThresh && puck.vy < 0) {
+      aiMode = 'attack';
+      aiTick = isHard ? 18 : 35;
+    } else if (puck.vy > 0) {
+      aiMode = 'defend';
+      aiTick = isHard ? 14 : 26;
+    } else {
+      aiMode = 'wander';
+      aiTick = isHard ? 28 : 52;
+      aiWA = Math.random() * Math.PI * 2;
+    }
+  }
+
+  let tx, ty;
+
+  if (aiMode === 'attack') {
+    if (isHard) {
+      // Hard: aim toward goal with slight angle — NOT corners (avoids corner trap)
+      // Target: bottom goal opening, offset slightly from center based on puck side
+      const goalCenterX = CW / 2;
+      const angleOffset = (puck.x - CW / 2) * 0.4; // slight diagonal
+      const targetX = clamp(goalCenterX + angleOffset, CW * 0.25, CW * 0.75);
+      const targetY = CH - GOAL_DEPTH;
+      const aimDx = targetX - puck.x;
+      const aimDy = targetY - puck.y;
+      const aimDist = Math.hypot(aimDx, aimDy) || 1;
+      tx = puck.x - (aimDx / aimDist) * (pad2.r * 1.2);
+      ty = puck.y - (aimDy / aimDist) * (pad2.r * 1.2);
+    } else {
+      // Easy: just chase puck loosely
+      tx = puck.x + (puck.x < CW/2 ? pad2.r : -pad2.r) * 0.4;
+      ty = puck.y - pad2.r * 0.6;
+    }
+  } else if (aiMode === 'defend') {
+    if (isHard) {
+      // Hard: perfectly track puck X
+      tx = puck.x;
+      ty = CH * 0.13;
+    } else {
+      // Easy: lazy tracking
+      tx = CW/2 + (puck.x - CW/2) * 0.35;
+      ty = CH * 0.16;
+    }
+  } else {
+    // Wander
+    tx = CW/2 + Math.cos(aiWA) * CW * (isHard ? 0.28 : 0.18);
+    ty = CH * 0.19 + Math.sin(aiWA) * CH * 0.06;
+    aiWA += isHard ? 0.07 : 0.04;
+  }
+
+  // Hard AI occasionally makes "mistake" to keep it fun (5% chance per mode switch)
+  if (isHard && Math.random() < 0.03) {
+    tx += (Math.random() - 0.5) * CW * 0.25;
+    ty += (Math.random() - 0.5) * CH * 0.08;
+  }
+
+  movePadTo(pad2, clamp(tx, pad2.r, CW-pad2.r), clamp(ty, pad2.r, CH*0.46), spd);
+}
+
+function movePadTo(pad, tx, ty, spd) {
+  const dx = tx - pad.x, dy = ty - pad.y, d = Math.hypot(dx, dy);
+  if (d > 1) { pad.x += dx/d * Math.min(spd, d); pad.y += dy/d * Math.min(spd, d); }
+  pad.x = clamp(pad.x, pad.r, CW-pad.r);
+  pad.y = clamp(pad.y, pad.r, CH-pad.r);
+}
+
+// ═══════════════════════════════════════════════════
+// PHYSICS  (run by HOST and AI. Guest only moves paddles.)
+// ═══════════════════════════════════════════════════
+function stepPhysics() {
+  const netSpd = Math.min(CW,CH) * 0.018;
+
+  // Store previous positions (needed for real push velocity)
+  pad1.px = pad1.x; pad1.py = pad1.y;
+  pad2.px = pad2.x; pad2.py = pad2.y;
+
+  // Snap player paddle to target instantly (1:1 feel)
+  pad1.x = clamp(pad1.tx, pad1.r, CW - pad1.r);
+  pad1.y = clamp(pad1.ty, CH * 0.51, CH - pad1.r);
+
+  // Move opponent pad toward received position
+  if (myRole === 'ai') {
+    stepAI();
+  } else {
+    movePadTo(pad2, pad2.tx, pad2.ty, netSpd);
+    pad2.y = clamp(pad2.y, pad2.r, CH * 0.47);
+  }
+
+  // ── PUCK MOVEMENT with SUB-STEPS (fixes fast-paddle tunneling) ──
+  puck.trail.push({ x: puck.x, y: puck.y });
+  if (puck.trail.length > 14) puck.trail.shift();
+
+  // Clamp speed first
+  let sp = Math.hypot(puck.vx, puck.vy);
+  const MAX_SP = CH * 0.018;
+  const MIN_SP = CH * 0.005;
+  if (sp > MAX_SP) { puck.vx = puck.vx/sp*MAX_SP; puck.vy = puck.vy/sp*MAX_SP; sp = MAX_SP; }
+  if (sp < 0.3)    { const a = Math.random()*Math.PI*2; puck.vx = Math.cos(a)*MIN_SP; puck.vy = Math.sin(a)*MIN_SP; sp = MIN_SP; }
+  else if (sp < MIN_SP) { puck.vx = puck.vx/sp*MIN_SP; puck.vy = puck.vy/sp*MIN_SP; }
+
+  // Sub-steps: split movement into steps of at most (puck.r * 0.5)
+  // This ensures puck never jumps over a paddle in one frame
+  const STEP_SIZE = puck.r * 0.5;
+  const totalDist = sp; // distance this frame
+  const numSteps  = Math.max(1, Math.ceil(totalDist / STEP_SIZE));
+  const stepVx    = puck.vx / numSteps;
+  const stepVy    = puck.vy / numSteps;
+
+  for (let s = 0; s < numSteps; s++) {
+    puck.x += stepVx;
+    puck.y += stepVy;
+
+    // ── WALLS ── (clamp + reflect both axes to prevent corner trapping)
+    if (puck.x - puck.r < 0)  { puck.x = puck.r + 1;       puck.vx =  Math.abs(puck.vx); }
+    if (puck.x + puck.r > CW) { puck.x = CW - puck.r - 1;  puck.vx = -Math.abs(puck.vx); }
+
+    const gW = CW * GOAL_W_FRAC, gL = (CW-gW)/2, gR = gL+gW;
+
+    // Top wall / goal
+    if (puck.y - puck.r < GOAL_DEPTH) {
+      if (puck.x > gL && puck.x < gR) { onGoal(1); return; }
+      puck.y = GOAL_DEPTH + puck.r + 1;
+      puck.vy = Math.abs(puck.vy);
+      // If also touching side wall (corner), push away from corner
+      if (puck.x - puck.r < puck.r * 2) puck.vx = Math.abs(puck.vx);
+      if (puck.x + puck.r > CW - puck.r * 2) puck.vx = -Math.abs(puck.vx);
+    }
+    // Bottom wall / goal
+    if (puck.y + puck.r > CH - GOAL_DEPTH) {
+      if (puck.x > gL && puck.x < gR) { onGoal(2); return; }
+      puck.y = CH - GOAL_DEPTH - puck.r - 1;
+      puck.vy = -Math.abs(puck.vy);
+      if (puck.x - puck.r < puck.r * 2) puck.vx = Math.abs(puck.vx);
+      if (puck.x + puck.r > CW - puck.r * 2) puck.vx = -Math.abs(puck.vx);
+    }
+
+    // ── PAD COLLISIONS (checked every sub-step) ──
+    hitPad(pad1);
+    hitPad(pad2);
+  }
+
+  // Anti-stuck watchdog (checked once per frame, after all sub-steps)
+  checkStuck();
+}
+
+// PROPER collision: overlap separation + elastic reflect + real paddle push
+function hitPad(pad) {
+  const dx   = puck.x - pad.x;
+  const dy   = puck.y - pad.y;
+  const dist = Math.hypot(dx, dy);
+  const minD = puck.r + pad.r;
+  if (dist >= minD || dist < 0.01) return;
+
+  const nx = dx / dist;
+  const ny = dy / dist;
+
+  // 1. Fully separate — push puck out + 1px buffer so next frame has no overlap
+  puck.x = pad.x + nx * (minD + 1);
+  puck.y = pad.y + ny * (minD + 1);
+
+  // Clamp inside table after separation (prevents wall-corner trapping)
+  puck.x = clamp(puck.x, puck.r + 1, CW - puck.r - 1);
+  puck.y = clamp(puck.y, GOAL_DEPTH + puck.r + 1, CH - GOAL_DEPTH - puck.r - 1);
+
+  // 2. Real paddle velocity (frame delta, not target delta)
+  const pvx = pad.x - pad.px;
+  const pvy = pad.y - pad.py;
+
+  // 3. Relative velocity of puck vs paddle along normal
+  const relVn = (puck.vx - pvx) * nx + (puck.vy - pvy) * ny;
+
+  // Only resolve if puck is approaching paddle (relVn < 0)
+  if (relVn >= 0) return;
+
+  // 4. Elastic impulse (restitution = 1.0 = perfectly elastic)
+  const restitution = 1.0;
+  const impulse = -(1 + restitution) * relVn;
+
+  puck.vx += impulse * nx;
+  puck.vy += impulse * ny;
+
+  // 5. Add extra paddle push energy (makes hard hits feel powerful)
+  const pushPower = Math.hypot(pvx, pvy);
+  if (pushPower > 0.5) {
+    puck.vx += pvx * 0.5;
+    puck.vy += pvy * 0.5;
+  }
+
+  // 6. Clamp final speed
+  const sp = Math.hypot(puck.vx, puck.vy);
+  const MAX_SP = CH * 0.018;
+  const MIN_SP = CH * 0.006;
+  if (sp > MAX_SP) { puck.vx = puck.vx/sp * MAX_SP; puck.vy = puck.vy/sp * MAX_SP; }
+  if (sp < MIN_SP && sp > 0) { puck.vx = puck.vx/sp * MIN_SP; puck.vy = puck.vy/sp * MIN_SP; }
+}
+
+// ═══════════════════════════════════════════════════
+// GOAL HANDLING
+// ═══════════════════════════════════════════════════
+function onGoal(scorer) {
+  if (!gameActive) return;
+  gameActive = false;
+
+  if (scorer === 1) score1++; else score2++;
+  updateHUD(scorer);
+  goalFX(scorer);
+
+  // Notify guest
+  if (myRole === 'host') {
+    wsSend({ type:'goal', s1:score1, s2:score2, scorer });
+  }
+
+  if (timeLeft <= 0) { doEndGame(); return; }
+  setTimeout(() => { resetPuck(); gameActive = true; }, 1700);
+}
+
+function goalFX(scorer) {
+  const col = scorer === 1 ? '#FF4757' : '#2979FF';
+  const txt = scorer === 1 ? '🔴 GOAL!' : '🔵 GOAL!';
+  const fl = document.getElementById('gflash');
+  fl.style.background = col + '26';
+  fl.style.opacity = '1'; fl.style.transition = 'none';
+  setTimeout(() => { fl.style.transition = 'opacity .4s'; fl.style.opacity = '0'; }, 50);
+  const gp = document.getElementById('gpop');
+  gp.textContent = txt; gp.style.color = col;
+  gp.classList.remove('gone','show'); void gp.offsetWidth;
+  gp.classList.add('show');
+  setTimeout(() => { gp.classList.remove('show'); gp.classList.add('gone'); }, 1300);
+  setTimeout(() => gp.classList.remove('gone'), 1600);
+  confetti();
+}
+
+// ═══════════════════════════════════════════════════
+// HUD
+// ═══════════════════════════════════════════════════
+function updateHUD(bump) {
+  document.getElementById('hscore1').textContent = score1;
+  document.getElementById('hscore2').textContent = score2;
+  if (bump) {
+    const el = document.getElementById(bump === 1 ? 'hscore1' : 'hscore2');
+    el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// NETWORK SYNC  (every 2 frames)
+// ═══════════════════════════════════════════════════
+function netSync() {
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+  // Send MY paddle normalised
+  wsSend({ type:'paddle', x: pad1.x/CW, y: pad1.y/CH });
+  // Host also sends puck state
+  if (myRole === 'host') {
+    wsSend({ type:'puck', x:puck.x/CW, y:puck.y/CH, vx:puck.vx/CW, vy:puck.vy/CH });
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// MAIN LOOP
+// ═══════════════════════════════════════════════════
+function loop() {
+  if (gameActive) {
+    if (myRole === 'guest') {
+      // Guest: just move own paddle + interpolate opponent + record trail
+      pad1.x = clamp(pad1.tx, pad1.r, CW - pad1.r);
+      pad1.y = clamp(pad1.ty, CH * 0.51, CH - pad1.r);
+      movePadTo(pad2, pad2.tx, pad2.ty, Math.min(CW,CH)*0.018);
+      pad2.y = clamp(pad2.y, pad2.r, CH * 0.47);
+      puck.trail.push({ x:puck.x, y:puck.y });
+      if (puck.trail.length > 14) puck.trail.shift();
+    } else {
+      stepPhysics();
+    }
+    tick++;
+    if (tick % 2 === 0 && myRole !== 'ai') netSync();
+  }
+  render();
+  rafID = requestAnimationFrame(loop);
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════
+function render() {
+  ctx.clearRect(0, 0, CW, CH);
+
+  // Table background
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, CW, CH);
+
+  // Half tints
+  ctx.fillStyle = 'rgba(41,121,255,0.05)';  ctx.fillRect(0, 0,    CW, CH/2);
+  ctx.fillStyle = 'rgba(255,71,87,0.05)';   ctx.fillRect(0, CH/2, CW, CH/2);
+
+  // Center line
+  ctx.save(); ctx.setLineDash([11,8]);
+  ctx.strokeStyle = '#DDE3F0'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(0, CH/2); ctx.lineTo(CW, CH/2); ctx.stroke();
+  ctx.restore();
+
+  // Center circle
+  const cr = Math.min(CW,CH) * 0.11;
+  ctx.beginPath(); ctx.arc(CW/2, CH/2, cr, 0, Math.PI*2);
+  ctx.strokeStyle = '#DDE3F0'; ctx.lineWidth = 2.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(CW/2, CH/2, 5, 0, Math.PI*2);
+  ctx.fillStyle = '#DDE3F0'; ctx.fill();
+
+  // Goals
+  const gW = CW*GOAL_W_FRAC, gL=(CW-gW)/2, gR=gL+gW;
+  drawGoal(gL, gR, 'top',    '#2979FF');
+  drawGoal(gL, gR, 'bottom', '#FF4757');
+
+  // Puck trail
+  puck.trail.forEach((p,i) => {
+    const a = i / puck.trail.length;
+    ctx.beginPath(); ctx.arc(p.x, p.y, puck.r * a * 0.65, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(50,50,80,${a*0.09})`; ctx.fill();
+  });
+
+  // Puck
+  drawPuck();
+
+  // Paddles
+  drawPaddle(pad1, '#FF4757', '#FFCDD2', '#FF8A80');
+  drawPaddle(pad2, '#2979FF', '#BBDEFB', '#82B1FF');
+}
+
+function drawGoal(gL, gR, side, col) {
+  const y0 = side === 'top' ? 0 : CH - GOAL_DEPTH;
+  const y1 = side === 'top' ? GOAL_DEPTH : CH;
+  ctx.fillStyle = col + '1E'; ctx.fillRect(gL, y0, gR-gL, y1-y0);
+  ctx.strokeStyle = col; ctx.lineWidth = 3;
+  ctx.beginPath();
+  if (side === 'top') {
+    ctx.moveTo(gL,y1); ctx.lineTo(gL,y0); ctx.lineTo(gR,y0); ctx.lineTo(gR,y1);
+  } else {
+    ctx.moveTo(gL,y0); ctx.lineTo(gL,y1); ctx.lineTo(gR,y1); ctx.lineTo(gR,y0);
+  }
+  ctx.stroke();
+  const py = side === 'top' ? y1 : y0;
+  for (const px of [gL, gR]) {
+    ctx.beginPath(); ctx.arc(px, py, 7, 0, Math.PI*2); ctx.fillStyle = col; ctx.fill();
+    ctx.beginPath(); ctx.arc(px, py, 3, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
+  }
+}
+
+function drawPuck() {
+  const {x,y,r} = puck;
+  ctx.beginPath(); ctx.arc(x+3, y+4, r, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(0,0,0,.13)'; ctx.fill();
+  const g = ctx.createRadialGradient(x-r*.3, y-r*.3, 1, x, y, r);
+  g.addColorStop(0,'#666'); g.addColorStop(.6,'#222'); g.addColorStop(1,'#0a0a0a');
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2);
+  ctx.fillStyle = g; ctx.fill();
+  ctx.beginPath(); ctx.arc(x-r*.25, y-r*.25, r*.28, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fill();
+}
+
+function drawPaddle(pad, main, light, mid) {
+  const {x,y,r} = pad;
+  ctx.beginPath(); ctx.arc(x+3, y+5, r, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(0,0,0,.13)'; ctx.fill();
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fillStyle = light; ctx.fill();
+  ctx.beginPath(); ctx.arc(x, y, r*.75, 0, Math.PI*2); ctx.fillStyle = mid; ctx.fill();
+  const g = ctx.createRadialGradient(x-r*.2, y-r*.2, r*.05, x, y, r*.5);
+  g.addColorStop(0, mid); g.addColorStop(1, main);
+  ctx.beginPath(); ctx.arc(x, y, r*.5, 0, Math.PI*2); ctx.fillStyle = g; ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.lineWidth = 2;
+  for (let i=0;i<4;i++) {
+    const a = Math.PI/2*i;
+    ctx.beginPath();
+    ctx.moveTo(x+Math.cos(a)*r*.18, y+Math.sin(a)*r*.18);
+    ctx.lineTo(x+Math.cos(a)*r*.58, y+Math.sin(a)*r*.58);
+    ctx.stroke();
+  }
+  ctx.beginPath(); ctx.arc(x, y, r*.12, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.fill();
+}
+
+// ═══════════════════════════════════════════════════
+// GAME OVER
+// ═══════════════════════════════════════════════════
+function doEndGame() {
+  gameActive = false;
+  clearInterval(timerID);
+  if (myRole === 'host') wsSend({ type:'gameover', s1:score1, s2:score2 });
+  const win = score1 > score2, draw = score1 === score2;
+  document.getElementById('eico').textContent  = draw ? '🤝' : win ? '🏆' : '😅';
+  document.getElementById('etitle').textContent = draw ? "It's a Draw!" : win ? 'You Win!' : 'You Lose!';
+  document.getElementById('esub').textContent  = score1 + ' – ' + score2;
+  document.getElementById('endlay').classList.remove('off');
+  confetti(); setTimeout(confetti, 350);
+}
+
+function playAgain() {
+  if (myRole === 'ai') { doRestart(); return; }
+  wsSend({ type:'restart' });
+  toast('🔄 Requesting rematch…');
+}
+
+function doRestart() {
+  score1 = 0; score2 = 0; updateHUD(0);
+  document.getElementById('endlay').classList.add('off');
+  resetPuck(); startTimer(); gameActive = true;
+}
+
+function leaveGame() {
+  gameActive = false;
+  clearInterval(timerID);
+  if (rafID) { cancelAnimationFrame(rafID); rafID = null; }
+  if (document.fullscreenElement) document.exitFullscreen();
+  if (document.pointerLockElement) document.exitPointerLock();
+  window.removeEventListener('resize', resizeCv);
+  closeWS();
+  go('sLobby');
+}
+
+// ═══════════════════════════════════════════════════
+// FULLSCREEN
+// ═══════════════════════════════════════════════════
+function toggleFS() {
+  const el = document.getElementById('sGame');
+  if (!document.fullscreenElement) {
+    (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+  } else {
+    document.exitFullscreen();
+  }
+}
+document.addEventListener('fullscreenchange', () => {
+  const btn = document.querySelector('.hbtn.fs');
+  if (btn) btn.textContent = document.fullscreenElement ? '✕' : '⛶';
+  setTimeout(resizeCv, 80);
+});
+
+// ═══════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════
+function clamp(v,a,b){ return v<a?a:v>b?b:v; }
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => el.classList.remove('show'), 2400);
+}
+
+function confetti() {
+  const cols = ['#FF4757','#2979FF','#FFD600','#00C853','#FF6D00','#F06292','#00B0FF'];
+  for (let i=0; i<42; i++) {
+    const el = document.createElement('div');
+    el.className = 'cf';
+    const sz = 6 + Math.random()*8;
+    el.style.cssText = `left:${Math.random()*100}%;width:${sz}px;height:${sz}px;`
+      + `background:${cols[~~(Math.random()*cols.length)]};`
+      + `border-radius:${Math.random()>.5?'50%':'3px'};`
+      + `animation-duration:${1.4+Math.random()*1.8}s;`
+      + `animation-delay:${Math.random()*.45}s;`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  }
+}
+
+function spawnParticles() {
+  const cols = ['#FF4757','#2979FF','#FFD600','#00C853','#FF6D00'];
+  for (let i=0; i<15; i++) {
+    const el = document.createElement('div');
+    el.className = 'fp';
+    const sz = 6 + Math.random()*9;
+    el.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;`
+      + `background:${cols[~~(Math.random()*cols.length)]};`
+      + `animation-duration:${6+Math.random()*8}s;`
+      + `animation-delay:${Math.random()*6}s;`;
+    document.body.appendChild(el);
+  }
+}
+</script>
+</body>
+</html>
